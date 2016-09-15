@@ -30,11 +30,12 @@ int main() {
   status = sqlite3BtreeBeginTrans(pBtree, 1);
   errorReport("sqlite3BtreeBeginTrans", status);
 
+  // CreateTable
   status = sqlite3BtreeCreateTable(pBtree, &pageNo, BTREE_INTKEY);
   errorReport("sqlite3BtreeCreateTable", status);
-
   printf("sqlite3BtreeCreateTable: Btree page number=%d\n", pageNo);
 
+  // OpenWrite
   int cursorSize = sqlite3BtreeCursorSize();
   BtCursor *pCur = malloc((size_t) cursorSize);
 
@@ -57,20 +58,34 @@ int main() {
 
   printf("sqlite3BtreeCursorSize: %d\n", cursorSize);
 
-  int seekResult;
-  sqlite3_int64 id = 1;
-  status = sqlite3BtreeMovetoUnpacked(pCur, NULL, id, 0, &seekResult);
-  errorReport("sqliteBtreeMovetoUnpacked", status);
+
+  // NewRowid
+  int res;
+  sqlite3_int64 v;
+  status = sqlite3BtreeLast(pCur, &res);
+  errorReport("sqlite3BtreeLast", status);
+
+  if (res) {
+    v = 1;   /* IMP: R-61914-48074 */
+  }
+  else {
+    v = sqlite3BtreeIntegerKey(pCur) + 1;
+  }
+
+  // Insert
+  sqlite3_int64 id = v;
 
   BtreePayload payload;
-  payload.pKey = NULL;
-  payload.nKey = 0;
-  payload.pData = "data";
-  payload.nData = sizeof("data");
+  payload.pKey = 0;
+  payload.nKey = id;
+  payload.pData = 0;
+  payload.nData = 0;
   payload.nZero = 0;
-  status = sqlite3BtreeInsert(pCur, &payload, 1, seekResult);
+  status = sqlite3BtreeInsert(pCur, &payload, 1, 0);
   errorReport("sqliteBtreeInsert", status);
 
+
+  // Close
   status = sqlite3BtreeCommit(pBtree);
   errorReport("sqlite3BtreeCommit", status);
 

@@ -11,6 +11,10 @@ add_custom_target(sqlite3
   )
 
 # Test targets
+add_executable(shell build/sqlite3/shell.c build/sqlite3/sqlite3.c)
+target_link_libraries(shell dl pthread)
+add_dependencies(shell sqlite3)
+
 add_executable(test_os examples/test_os.c build/sqlite3/sqlite3.c)
 target_link_libraries(test_os dl pthread)
 add_dependencies(test_os sqlite3)
