@@ -194,7 +194,7 @@ int main(int argc, char **argv) {
   // MakeRecord & Insert
   p5 = 0x08;
 
-  char *tmp = "\x06\x17\x15\x15\x01\x37" // id, name, tbl_name, rootpage, sql
+  char *tmp = "\x06\x17\x15\x15\x01\x7b" // id, name, tbl_name, rootpage, sql
     "table" "hehe" "hehe" "\x00" "CREATE TABLE hehe (id INTEGER PRIMARY KEY, name STRING)";
   int len = 75;
 
